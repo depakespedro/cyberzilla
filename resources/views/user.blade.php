@@ -60,11 +60,45 @@
 
                 @if ($userAuth->hasRole('admin'))
                     <button type="submit" class="btn btn-primary">Обновить</button>
-                    <button type="submit" class="btn btn-danger">Удалить</button>
+                    <button type="button" class="btn btn-danger" id="delete" data-id="{{ $user->id }}" data-token="{{ csrf_token() }}">Удалить</button>
                 @endif
             </form>
 
         </div>
     </div>
 </div>
+
+<script>
+    $(function() {
+        var url = "{{ route('user.delete', ['id' => $user->id]) }}";
+        var redirect = "{{ route('users.index') }}";
+
+        $('#delete').on('click', function () {
+            var user_id = $(this).data('id');
+            var token = $(this).data('token');
+
+            $.ajaxSetup({
+                headers:
+                    { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
+            });
+
+            $.ajax({
+                url: url,
+                type: 'post',
+                data: {
+                    '_token': token,
+                    '_method': 'delete',
+                },
+                success: function(result) {
+                    window.location.replace(redirect)
+                },
+                error: function (error) {
+                    alert('Ошибка удаления');
+                }
+            });
+
+        });
+    });
+
+</script>
 @endsection

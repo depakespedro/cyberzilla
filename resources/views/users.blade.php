@@ -23,7 +23,9 @@
                 <br>
             @endforeach
 
-            {{ $users->links() }}
+            @if($userAuth->hasRole('admin'))
+                {{ $users->links() }}
+            @endif
         </div>
     </div>
 </div>

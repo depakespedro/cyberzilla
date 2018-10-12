@@ -20,4 +20,14 @@ class UserPolicy
     {
         return true;
     }
+
+    public function update(User $authUser, User $showUser)
+    {
+        return $authUser->id === $showUser->id;
+    }
+
+    public function delete(User $authUser, User $showUser)
+    {
+        return $authUser->id === $showUser->id;
+    }
 }
