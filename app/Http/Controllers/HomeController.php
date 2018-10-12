@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\ContactType;
+use App\User;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -23,6 +25,9 @@ class HomeController extends Controller
      */
     public function index()
     {
+
+        $contacts_types = ContactType::all()->pluck('id');
+        dd($contacts_types);
         return view('home');
     }
 }
