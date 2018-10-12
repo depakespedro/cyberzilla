@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\ContactType;
+use App\Http\Requests\UserUpdateRequest;
 use App\User;
 use Illuminate\Http\Request;
 
@@ -47,7 +48,12 @@ class UsersController extends Controller
         $userAuth = auth()->user();
 
         if ($userAuth->can('show', $userShow)) {
-            return view('user', ['user' => $userShow]);
+            return view('user', ['user' => $userShow, 'userAuth' => $userAuth]);
         }
+    }
+
+    public function update($id, UserUpdateRequest $request)
+    {
+        dd($id, $request->toArray());
     }
 }
