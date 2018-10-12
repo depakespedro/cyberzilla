@@ -17,6 +17,11 @@ class UsersSeeder extends Seeder
             for ($i = 0; $i <= random_int(1, 5); $i++) {
                 $user->contacts()->save(factory(App\Contact::class)->make());
             }
+
+            $user->assignRole('user');
         });
+
+        $user = \App\User::find(1);
+        $user->assignRole('admin');
     }
 }
