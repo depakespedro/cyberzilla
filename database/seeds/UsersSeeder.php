@@ -14,9 +14,24 @@ class UsersSeeder extends Seeder
         factory(\App\User::class, 100)->create()->each(function (\App\User $user) {
             $user->profile()->save(factory(App\Profile::class)->make());
 
-            for ($i = 0; $i <= random_int(1, 5); $i++) {
-                $user->contacts()->save(factory(App\Contact::class)->make());
-            }
+            $user->contacts()->save(
+                new \App\Contact([
+                    'contact_type_id' => 1,
+                    'info' => \Illuminate\Support\Str::random(16)
+                ])
+            );
+            $user->contacts()->save(
+                new \App\Contact([
+                    'contact_type_id' => 2,
+                    'info' => \Illuminate\Support\Str::random(16)]
+                )
+            );
+            $user->contacts()->save(
+                new \App\Contact([
+                    'contact_type_id' => 3,
+                    'info' => \Illuminate\Support\Str::random(16)]
+                )
+            );
 
             $user->assignRole('user');
         });

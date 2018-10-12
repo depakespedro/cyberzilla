@@ -17,8 +17,12 @@ class Contact extends Authenticatable
         'info',
     ];
 
+    protected $with = [
+        'type',
+    ];
+
     public function type()
     {
-        return $this->belongsTo(ContactType::class);
+        return $this->belongsTo(ContactType::class, 'contact_type_id');
     }
 }

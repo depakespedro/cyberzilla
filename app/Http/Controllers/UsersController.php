@@ -25,6 +25,29 @@ class UsersController extends Controller
      */
     public function index()
     {
-        return view('home');
+        $user = auth()->user();
+
+        if ($user->hasRole('admin')) {
+            $users = User::paginate(5);
+        } else {
+            $users = User::take(10)->get();
+        }
+
+        return view('users', ['users' => $users]);
+    }
+
+    public function show($id)
+    {
+        $userShow = User::find($id);
+
+        if (is_null($userShow)) {
+            redirect()->route('index');
+        }
+
+        $userAuth = auth()->user();
+
+        if ($userAuth->can('show', $userShow)) {
+            return view('user', ['user' => $userShow]);
+        }
     }
 }

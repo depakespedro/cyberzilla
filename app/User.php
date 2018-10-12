@@ -25,6 +25,11 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    protected $with = [
+        'profile',
+        'contacts',
+    ];
+
     public function profile()
     {
         return $this->hasOne(Profile::class);
@@ -32,6 +37,6 @@ class User extends Authenticatable
 
     public function contacts()
     {
-        return $this->hasOne(Contact::class);
+        return $this->hasMany(Contact::class);
     }
 }
