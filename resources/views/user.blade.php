@@ -8,28 +8,28 @@
                 {{ csrf_field() }}
                 <div class="form-group">
                     <label>Почта</label>
-                    <input type="text" class="form-control" id="email" name="email" value="{{ $errors->has('email') ? old('email') : $user->email }}">
+                    <input type="text" class="form-control" id="email" name="email" value="{{ $errors->has('email') ? old('email') : $user->email }}" readonly>
                     @foreach($errors->get('email') as $error)
                         <h6 class="text-danger">{{ $error }}</h6>
                     @endforeach
                 </div>
                 <div class="form-group">
                     <label>Имя</label>
-                    <input type="text" class="form-control" id="firstname" name="firstname" value="{{ $errors->has('firstname') ? old('firstname') : $user->profile->firstname }}">
+                    <input type="text" class="form-control" id="firstname" name="firstname" value="{{ $errors->has('firstname') ? old('firstname') : (!$user->profile ? '' : $user->profile->firstname) }}">
                     @foreach($errors->get('firstname') as $error)
                         <h6 class="text-danger">{{ $error }}</h6>
                     @endforeach
                 </div>
                 <div class="form-group">
                     <label>Фамилия</label>
-                    <input type="text" class="form-control" id="lastname" name="lastname" value="{{ $errors->has('lastname') ? old('lastname') : $user->profile->lastname }}">
+                    <input type="text" class="form-control" id="lastname" name="lastname" value="{{ $errors->has('lastname') ? old('lastname') : (!$user->profile ? '' : $user->profile->lastname)}}">
                     @foreach($errors->get('lastname') as $error)
                         <h6 class="text-danger">{{ $error }}</h6>
                     @endforeach
                 </div>
                 <div class="form-group">
                     <label>Возраст</label>
-                    <input type="text" class="form-control" id="age" name="age" value="{{ $errors->has('age') ? old('age') : $user->profile->age }}">
+                    <input type="text" class="form-control" id="age" name="age" value="{{ $errors->has('age') ? old('age') : (!$user->profile ? '' : $user->profile->age) }}">
                     @foreach($errors->get('age') as $error)
                         <h6 class="text-danger">{{ $error }}</h6>
                     @endforeach
@@ -45,17 +45,29 @@
 
                 <div class="form-group">
                     <label> <h3>Контактные данные</h3></label>
-                    @foreach($user->contacts as $contact)
-                        <div class="form-group row">
-                            <label for="example-text-input" class="col-2 col-form-label">{{ $contact->type->title }}</label>
-                            <div class="col-10">
-                                <input class="form-control" type="text" id="contact_{{ $contact->type->code }}" name="contact_{{ $contact->type->code }}" value="{{ $errors->has('contact_' . $contact->type->code) ? old('contact_' . $contact->type->code) : $contact->info }}">
-                                @foreach($errors->get('contact_' . $contact->type->code) as $error)
-                                    <h6 class="text-danger">{{ $error }}</h6>
-                                @endforeach
+                        @foreach(\App\ContactType::all() as $contactType)
+                            @php
+                                $contact = $user->contacts()->where('contact_type_id', $contactType->id)->first();
+                            @endphp
+                            <div class="form-group row">
+                                <label for="example-text-input" class="col-2 col-form-label">{{ $contactType->title }}</label>
+                                <div class="col-10">
+                                    <input class="form-control" type="text" id="contact_{{ $contactType->code }}" name="contact_{{ $contactType->code }}" value="{{ is_null($contact) ? '' : $contact->info }}">
+                                    @foreach($errors->get('contact_' . $contactType->code) as $error)
+                                        <h6 class="text-danger">{{ $error }}</h6>
+                                    @endforeach
+                                </div>
                             </div>
+                        @endforeach
+                </div>
+
+                <div class="form-group row">
+                    <div class="col-sm-2">Администратор</div>
+                    <div class="col-sm-10">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="admin" name="admin" {{ $user->hasRole('admin') ? 'checked' : '' }} {{ !$userAuth->hasRole('admin') ? 'disabled' : '' }}>
                         </div>
-                    @endforeach
+                    </div>
                 </div>
 
                 @if ($userAuth->hasRole('admin'))

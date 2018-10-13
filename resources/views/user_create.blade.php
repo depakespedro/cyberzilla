@@ -45,31 +45,24 @@
 
                 <div class="form-group">
                     <label> <h3>Контактные данные</h3></label>
-                    <div class="form-group row">
-                        <label for="example-text-input" class="col-2 col-form-label">Телефон</label>
-                        <div class="col-10">
-                            <input class="form-control" type="text" id="contact_phone" name="contact_phone" value="{{ old('contact_phone') }}">
-                            @foreach($errors->get('contact_phone') as $error)
-                                <h6 class="text-danger">{{ $error }}</h6>
-                            @endforeach
+                    @foreach(\App\ContactType::all() as $contactType)
+                        <div class="form-group row">
+                            <label for="example-text-input" class="col-2 col-form-label">{{ $contactType->title }}</label>
+                            <div class="col-10">
+                                <input class="form-control" type="text" id="contact_{{ $contactType->code }}" name="contact_{{ $contactType->code }}" value="{{ old('contact_' . $contactType->code) }}">
+                                @foreach($errors->get('contact_' . $contactType->code) as $error)
+                                    <h6 class="text-danger">{{ $error }}</h6>
+                                @endforeach
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-group row">
-                        <label for="example-text-input" class="col-2 col-form-label">Вк</label>
-                        <div class="col-10">
-                            <input class="form-control" type="text" id="contact_vk" name="contact_vk" value="{{ old('contact_vk') }}">
-                            @foreach($errors->get('contact_vk') as $error)
-                                <h6 class="text-danger">{{ $error }}</h6>
-                            @endforeach
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label for="example-text-input" class="col-2 col-form-label">Фейсбук</label>
-                        <div class="col-10">
-                            <input class="form-control" type="text" id="contact_fb" name="contact_fb" value="{{ old('contact_fb') }}">
-                            @foreach($errors->get('contact_fb') as $error)
-                                <h6 class="text-danger">{{ $error }}</h6>
-                            @endforeach
+                    @endforeach
+                </div>
+
+                <div class="form-group row">
+                    <div class="col-sm-2">Администратор</div>
+                    <div class="col-sm-10">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="admin" name="admin">
                         </div>
                     </div>
                 </div>

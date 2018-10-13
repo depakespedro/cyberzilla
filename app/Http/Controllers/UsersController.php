@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\ContactType;
+use App\Http\Requests\UserCreateRequest;
 use App\Http\Requests\UserUpdateRequest;
 use App\User;
 use Illuminate\Http\Request;
@@ -34,7 +35,7 @@ class UsersController extends Controller
         if ($user->hasRole('admin')) {
             $users = User::orderBy('id', 'desct')->paginate(5);
         } else {
-            $users = User::take(10)->get();
+            $users = User::orderBy('id', 'desct')->take(10)->get();
         }
 
         return view('users', ['users' => $users, 'userAuth' => $user]);
@@ -68,19 +69,56 @@ class UsersController extends Controller
         $userAuth = auth()->user();
 
         if ($userAuth->can('update', $userShow)) {
-            $userShow->profile()->update([
-                'firstname' => $request->get('firstname', ''),
-                'lastname' => $request->get('lastname', ''),
-                'age' => $request->get('age', 1),
-            ]);
 
-            $contactTypes = ContactType::all()->pluck('code');
-            foreach ($contactTypes as $type) {
-                $userShow->contacts()->whereHas('type', function ($q) use ($type) {
-                    $q->where('code', $type);
-                })->update([
-                    'info' => $request->get('contact_' . $type, 1),
-                ]);
+            DB::beginTransaction();
+
+            try {
+                $firstname = (string)$request->get('firstname', '');
+                $lastname = (string)$request->get('lastname', '');
+                $age =  (int)$request->get('age', 0);
+
+                if (is_null($userShow->profile)) {
+                    $userShow->profile()->create([
+                        'firstname' => $firstname,
+                        'lastname' => $lastname,
+                        'age' => $age,
+                    ]);
+                } else {
+                    $userShow->profile()->update([
+                        'firstname' => $firstname,
+                        'lastname' => $lastname,
+                        'age' => $age,
+                    ]);
+                }
+
+                $contactTypes = ContactType::all()->pluck('code');
+                foreach ($contactTypes as $type) {
+                    $contact = $userShow->contacts()->whereHas('type', function ($q) use ($type) {
+                        $q->where('code', $type);
+                    })->first();
+
+                    if (is_null($contact)) {
+                        $userShow->contacts()->create([
+                            'contact_type_id' => ContactType::findByCode($type)->id,
+                            'info' => (string)$request->get('contact_' . $type, ''),
+                        ]);
+                    } else {
+                        $contact->update([
+                            'info' => (string)$request->get('contact_' . $type, ''),
+                        ]);
+                    }
+                }
+
+                if ($request->get('admin', false)) {
+                    $userShow->assignRole('admin');
+                } else {
+                    $userShow->removeRole('admin');
+                }
+
+                DB::commit();
+            } catch (\Exception $e) {
+                DB::rollBack();
+                dd($e);
             }
         }
 
@@ -115,7 +153,7 @@ class UsersController extends Controller
         return redirect()->route('users.index');
     }
 
-    public function create(UserUpdateRequest $request)
+    public function create(UserCreateRequest $request)
     {
         $userAuth = auth()->user();
 
@@ -124,32 +162,31 @@ class UsersController extends Controller
 
             try {
                 $user = User::create([
-                    'email' => $request->get('email', ''),
+                    'email' => (string)$request->get('email', ''),
                     'token' => Str::random(10),
                     'password' => Hash::make('secret'),
-                    'name' => $request->get('firstname', '') . ' ' . $request->get('lastname', ''),
+                    'name' => (string)$request->get('firstname', '') . ' ' . (string)$request->get('lastname', ''),
                 ]);
 
                 $user->profile()->create([
-                   'firstname' => $request->get('firstname', ''),
-                   'lastname' => $request->get('lastname', ''),
-                   'age' => $request->get('age', 1),
+                   'firstname' => (string)$request->get('firstname', ''),
+                   'lastname' => (string)$request->get('lastname', ''),
+                   'age' => (int)$request->get('age', 0),
                 ]);
 
-                $user->contacts()->create([
-                    'contact_type_id' => ContactType::findByCode('phone')->id,
-                    'info' => $request->get('contact_phone', '')
-                ]);
+                $contactTypes = ContactType::all()->pluck('code');
+                foreach ($contactTypes as $type) {
+                    $user->contacts()->create([
+                        'contact_type_id' => ContactType::findByCode($type)->id,
+                        'info' => (string)$request->get('contact_' . $type, ''),
+                    ]);
+                }
 
-                $user->contacts()->create([
-                    'contact_type_id' => ContactType::findByCode('fb')->id,
-                    'info' => $request->get('contact_fb', '')
-                ]);
-
-                $user->contacts()->create([
-                    'contact_type_id' => ContactType::findByCode('vk')->id,
-                    'info' => $request->get('contact_vk', '')
-                ]);
+                if ($request->get('admin', false)) {
+                    $user->assignRole('admin');
+                } else {
+                    $user->removeRole('admin');
+                }
 
                 DB::commit();
 

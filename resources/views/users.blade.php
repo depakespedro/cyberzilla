@@ -8,14 +8,14 @@
                 <div class="card">
 
                     <div class="card-header">#{{ $user->id }}
-                        <a href="{{ route('user.show', ['id' => $user->id]) }}">{{ $user->name }}</a>
+                        <a href="{{ route('user.show', ['id' => $user->id]) }}">{{ $user->email }}</a>
                     </div>
 
                     <div class="card-body">
+                        <h6>Никнейм: {{ $user->name }}</h6>
                         <h6>Имя: {{ !$user->profile ?: $user->profile->firstname }}</h6>
                         <h6>Фамилия: {{ !$user->profile ?: $user->profile->lastname }}</h6>
                         <h6>Возраст: {{ !$user->profile ?: $user->profile->age }}</h6>
-                        <h6>Почта: {{ $user->email }}</h6>
                         <h6>Зарегестрирован: {{ $user->created_at->format('d.m.y') }}</h6>
                         <h6>Контактные данные:</h6>
                         @foreach($user->contacts as $contact)
