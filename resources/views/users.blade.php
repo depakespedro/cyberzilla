@@ -6,12 +6,15 @@
         <div class="col-md-12">
             @foreach($users as $user)
                 <div class="card">
-                    <a href="{{ route('user.show', ['id' => $user->id]) }}">
-                        <div class="card-header">{{ $user->profile->firstname }} {{ $user->profile->lastname }}</div>
-                    </a>
+
+                    <div class="card-header">#{{ $user->id }}
+                        <a href="{{ route('user.show', ['id' => $user->id]) }}">{{ $user->name }}</a>
+                    </div>
 
                     <div class="card-body">
-                        <h6>Возраст: {{ $user->profile->age }}</h6>
+                        <h6>Имя: {{ !$user->profile ?: $user->profile->firstname }}</h6>
+                        <h6>Фамилия: {{ !$user->profile ?: $user->profile->lastname }}</h6>
+                        <h6>Возраст: {{ !$user->profile ?: $user->profile->age }}</h6>
                         <h6>Почта: {{ $user->email }}</h6>
                         <h6>Зарегестрирован: {{ $user->created_at->format('d.m.y') }}</h6>
                         <h6>Контактные данные:</h6>

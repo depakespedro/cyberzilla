@@ -15,4 +15,15 @@ class ContactType extends Authenticatable
         'code',
         'title',
     ];
+
+    static function findByCode(string $code)
+    {
+        $models = self::where('code', $code)->get();
+
+        if ($models->isEmpty()) {
+            return null;
+        }
+
+        return $models->first();
+    }
 }

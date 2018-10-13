@@ -30,4 +30,9 @@ class UserPolicy
     {
         return $authUser->id === $showUser->id;
     }
+
+    public function create(User $authUser)
+    {
+        return false;
+    }
 }
