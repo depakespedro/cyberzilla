@@ -2,6 +2,7 @@
 
 Auth::routes();
 
+
 Route::get('/', function () { return redirect()->route('users.index'); });
 Route::get('/users', 'UsersController@index')->name('users.index');
 Route::get('/user/form', 'UsersController@createForm')->name('user.create.form');
